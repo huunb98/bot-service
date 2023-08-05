@@ -10,4 +10,4 @@ RUN npm run build
 
 EXPOSE 8000
 
-CMD npm run prod
+CMD npm start

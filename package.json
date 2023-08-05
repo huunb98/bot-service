@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.ts",
   "scripts": {
-    "start": "ts-node src/index.ts",
+    "start": "node out/index.js",
     "dev": "tsnd --respawn src/index.ts",
     "build": "tsc -p .",
     "test": "echo \"Error: no test specified\" && exit 1"

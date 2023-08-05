@@ -1,0 +1,13 @@
+version: "1.0"
+services:
+  bot-service:
+    image: bot-service:1.0
+    container_name: bot-service
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "${PORT}:-8000"
+    volumes:
+      - ./app/bot:/data
+    restart: on-failure:3
