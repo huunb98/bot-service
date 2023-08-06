@@ -24,6 +24,11 @@ app.post("", (req, res) => {
   res.sendStatus(200);
 });
 
+app.post("/webhook", (req, res) => {
+  console.log(req.body);
+  res.sendStatus(200);
+});
+
 app.post("/telegram", Authenticate, (req, res) => {
   const { chatId, message } = req.body;
   console.log(chatId, message);
