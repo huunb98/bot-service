@@ -42,8 +42,8 @@ app.post("/webhook", (req, res) => {
 app.post("/webhook/gitlab", (req, res) => {
   console.log("log body", req.body);
   new FileIO("header").writeFile("json", req.headers, false);
-  if (req.headers["X-Gitlab-Token"] == process.env.WEBHOOK_TOKEN) {
-    console.log("gitlab token", req.headers["X-Gitlab-Token"]);
+  if (req.headers["x-gitlab-token"] == process.env.WEBHOOK_TOKEN) {
+    console.log("gitlab token", req.headers["x-gitlab-token"]);
     new FileIO("gitlab_payload").writeFile("json", req.body);
   }
   res.sendStatus(200);
