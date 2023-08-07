@@ -28,7 +28,7 @@ app.post("", (req, res) => {
 });
 app.post("/webhook", (req, res) => {
   if (req.body.ref == "refs/heads/master") {
-    console.log("master branch updated 1");
+    console.log("master branch updated");
     console.log(req.body);
     cp.exec("./webhookCI.sh", function (_err: any, _stdout: any, _stderr: any) {
       console.log("run script", _err, _stdout, _stderr);
