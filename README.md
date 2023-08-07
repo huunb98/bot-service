@@ -2,6 +2,6 @@
 
 Simple project for send message to social network
 
-## Supported channel
+## Supported
 
 - Telegram
