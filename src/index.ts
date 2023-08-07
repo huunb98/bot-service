@@ -1,7 +1,9 @@
 import express from "express";
+import { fstat } from "fs";
 import TelegramBot from "node-telegram-bot-api";
 import { Authenticate } from "./auth/Authenticate";
 import { TelegramBotService } from "./telegram/TelegramService";
+import { FileIO } from "./utils/FileIO";
 import logAsset from "./utils/LogAsset";
 
 require("dotenv").config({ path: __dirname + "/../.env" });
@@ -23,9 +25,19 @@ app.post("", (req, res) => {
   if (message) telegramBot.onNewUpdate(message);
   res.sendStatus(200);
 });
-
 app.post("/webhook", (req, res) => {
   console.log(req.body);
+  new FileIO("github_payload").writeFile("json", req.body, false);
+  res.sendStatus(200);
+});
+
+app.post("/webhook/gitlab", (req, res) => {
+  console.log("log body", req.body);
+  new FileIO("header").writeFile("json", req.headers, false);
+  if (req.headers["X-Gitlab-Token"] == process.env.WEBHOOK_TOKEN) {
+    console.log("gitlab token", req.headers["X-Gitlab-Token"]);
+    new FileIO("gitlab_payload").writeFile("json", req.body);
+  }
   res.sendStatus(200);
 });
 
