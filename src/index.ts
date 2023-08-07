@@ -5,6 +5,7 @@ import { Authenticate } from "./auth/Authenticate";
 import { TelegramBotService } from "./telegram/TelegramService";
 import { FileIO } from "./utils/FileIO";
 import logAsset from "./utils/LogAsset";
+var cp = require("child_process");
 
 require("dotenv").config({ path: __dirname + "/../.env" });
 
@@ -26,8 +27,15 @@ app.post("", (req, res) => {
   res.sendStatus(200);
 });
 app.post("/webhook", (req, res) => {
-  console.log(req.body);
-  new FileIO("github_payload").writeFile("json", req.body, false);
+  if (req.body.ref == "refs/heads/master") {
+    console.log("master branch updated");
+    console.log(req.body);
+    cp.exec("./webhookCI.sh", function (_err: any, _stdout: any, _stderr: any) {
+      console.log("run script", _err, _stdout, _stderr);
+    });
+    new FileIO("github_payload").writeFile("json", req.body, false);
+  }
+
   res.sendStatus(200);
 });
 
