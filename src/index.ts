@@ -21,11 +21,12 @@ app.get("/", (req, res) => {
 
 const telegramBot = new TelegramBotService().getBotService();
 
-app.post("", (req, res) => {
+app.post("/hook/telegram", (req, res) => {
   const message: TelegramBot.Message = req.body.message;
   if (message) telegramBot.onNewUpdate(message);
   res.sendStatus(200);
 });
+
 app.post("/webhook", (req, res) => {
   if (req.body.ref == "refs/heads/master") {
     console.log("master branch updated");
