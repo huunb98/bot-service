@@ -7,8 +7,6 @@ import { FileIO } from "./utils/FileIO";
 import logAsset from "./utils/LogAsset";
 var cp = require("child_process");
 
-require("dotenv").config({ path: __dirname + "/../.env" });
-
 const app = express();
 const port = process.env.PORT || 3333;
 

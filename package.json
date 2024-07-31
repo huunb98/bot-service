@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.ts",
   "scripts": {
-    "start": "node out/index.js",
-    "dev": "tsnd --respawn src/index.ts",
+    "start": "env-cmd -f .env node out/index.js",
+    "dev": "env-cmd -f .env tsnd --respawn src/index.ts",
     "build": "tsc -p .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -19,6 +19,7 @@
     "axios": "^1.4.0",
     "child_process": "^1.0.2",
     "dotenv": "^16.3.1",
+    "env-cmd": "^10.1.0",
     "express": "^4.18.2",
     "fs": "^0.0.1-security",
     "node-telegram-bot-api": "^0.61.0"

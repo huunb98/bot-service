@@ -4,10 +4,8 @@ WORKDIR /home/node/botservices
 
 COPY . .
 
-RUN npm install
-
-RUN npm run build
+RUN yarn && yarn build
 
 EXPOSE 8000
 
-CMD npm start
+# CMD npm start
