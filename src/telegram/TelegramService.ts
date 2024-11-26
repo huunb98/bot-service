@@ -20,6 +20,7 @@ export class TelegramBotService {
   getBotService(): TelegramBotService {
     if (!this._instance) {
       this._instance = new TelegramBotService();
+      this.setWebhook();
     }
     return this._instance;
   }
