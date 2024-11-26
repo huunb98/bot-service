@@ -10,11 +10,25 @@ export class TelegramBotService {
 
   constructor() {
     this.bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN);
+    this.init();
+  }
+
+  /**
+   * Init webhook if not exists
+   */
+  async init() {
+    const data = await this.bot.getWebHookInfo();
+
+    if (!data.url) await this.setWebhook();
+
+    if (data.url && data.url !== this.webHook) {
+      await this.bot.deleteWebHook();
+      await this.setWebhook();
+    }
   }
 
   async setWebhook() {
-    const webHook = await this.bot.setWebHook(this.webHook, { allowed_updates: ["chat_member", "message", "edited_channel_post", "callback_query"] });
-    console.log(webHook);
+    await this.bot.setWebHook(this.webHook, { allowed_updates: ["chat_member", "message", "edited_channel_post", "callback_query"] });
   }
 
   getBotService(): TelegramBotService {

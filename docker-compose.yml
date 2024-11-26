@@ -11,5 +11,9 @@ services:
     environment:
       HOST: 0.0.0.0
     volumes:
-      - ./app/bot:/data
+      - .:/home/node/botservices
+    stdin_open: true
+    tty: true
+    environment:
+      HOST: 0.0.0.0
     restart: on-failure:3
