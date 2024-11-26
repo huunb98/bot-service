@@ -8,6 +8,6 @@ RUN npm install
 
 RUN npm run build
 
-EXPOSE 8000
+EXPOSE 8600
 
 CMD npm start
