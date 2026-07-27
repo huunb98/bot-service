@@ -51,7 +51,6 @@ app.post("/webhook/gitlab", (req, res) => {
 
 app.post("/telegram", Authenticate, (req, res) => {
   const { chatId, message } = req.body;
-  console.log(chatId, message);
   if (!chatId || !message) return res.status(404).json({ message: "ChatId or Message not valid" });
 
   telegramBot.sendMsgToGroup(chatId, message, (error, message) => {
