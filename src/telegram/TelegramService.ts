@@ -77,7 +77,7 @@ export class TelegramBotService {
   sendMsgToGroup(chatId: number, message: string, callback: (error: string, message: TelegramBot.Message) => void) {
     this.bot
       .sendMessage(chatId, message, {
-        parse_mode: "Markdown",
+        parse_mode: "MarkdownV2",
       })
       .then((message) => {
         console.log(message);
