@@ -17,12 +17,14 @@ export class TelegramBotService {
    * Init webhook if not exists
    */
   async init() {
-    // const data = await this.bot.getWebHookInfo();
-    // if (!data.url) await this.setWebhook();
-    // if (data.url && data.url !== this.webHook) {
-    //   await this.bot.deleteWebHook();
-    //   await this.setWebhook();
-    // }
+    const data = await this.bot.getWebHookInfo();
+
+    if (!data.url) await this.setWebhook();
+
+    if (data.url && data.url !== this.webHook) {
+      await this.bot.deleteWebHook();
+      await this.setWebhook();
+    }
   }
 
   async setWebhook() {
@@ -56,7 +58,8 @@ export class TelegramBotService {
     /**
      * Members added to group (includes bot being added)
      */
-    console.log("new update", message);
+
+    console.log("onNewUpdate", message);
     if (message.new_chat_members?.length) {
       for (const member of message.new_chat_members) {
         if (member.id === botId) {
