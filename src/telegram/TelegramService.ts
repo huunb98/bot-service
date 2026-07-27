@@ -48,10 +48,10 @@ export class TelegramBotService {
     /**
      * Tag bot
      */
-    if (message.entities && message.entities[0]?.user === undefined) {
-      replyToTagBot(this.bot, message);
-      return;
-    }
+    // if (message.entities && message.entities[0]?.user === undefined) {
+    //   replyToTagBot(this.bot, message);
+    //   return;
+    // }
 
     /**
      * New User Join
@@ -62,6 +62,8 @@ export class TelegramBotService {
       newParticipantJoin(this.bot, message);
       return;
     }
+
+    console.log("message", message);
 
     /**
      * Add bot to new group
