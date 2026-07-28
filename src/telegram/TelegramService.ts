@@ -190,10 +190,3 @@ export class TelegramBotService {
     return updates;
   }
 }
-
-import * as dotenv from "dotenv";
-dotenv.config();
-
-new TelegramBotService().getUpdates().catch((error) => {
-  console.error("[getUpdates] Error:", error);
-});

@@ -5,6 +5,7 @@ import { Authenticate } from "./auth/Authenticate";
 import { TelegramBotService } from "./telegram/TelegramService";
 import { FileIO } from "./utils/FileIO";
 import logAsset from "./utils/LogAsset";
+import { telegramLogger } from "./common";
 var cp = require("child_process");
 
 const app = express();
@@ -21,12 +22,53 @@ const telegramBot = new TelegramBotService().getBotService();
 
 app.post("/hook/telegram", (req, res) => {
   const update: TelegramBot.Update = req.body;
-  console.log("onNewUpdate", update);
 
-  if (update.message) telegramBot.onNewUpdate(update.message);
-  if (update.chat_member) telegramBot.onChatMemberUpdate(update.chat_member);
-  if (update.my_chat_member) telegramBot.onChatMemberUpdate(update.my_chat_member);
-  res.sendStatus(200);
+  try {
+    // Log toàn bộ update để trace
+    telegramLogger.info("Received webhook update", {
+      updateId: update.update_id,
+      type: update.message ? "message" : update.chat_member ? "chat_member" : update.my_chat_member ? "my_chat_member" : "unknown",
+      chatId: update.message?.chat.id || update.chat_member?.chat.id || update.my_chat_member?.chat.id,
+      chatTitle: update.message?.chat.title || update.chat_member?.chat.title || update.my_chat_member?.chat.title,
+      from: update.message?.from?.username || update.chat_member?.from?.username || update.my_chat_member?.from?.username,
+    });
+
+    if (update.message) {
+      telegramLogger.debug("Processing message update", {
+        messageId: update.message.message_id,
+        text: update.message.text,
+        from: update.message.from?.username,
+      });
+      telegramBot.onNewUpdate(update.message);
+    }
+
+    if (update.chat_member) {
+      telegramLogger.debug("Processing chat_member update", {
+        user: update.chat_member.new_chat_member.user.username,
+        oldStatus: update.chat_member.old_chat_member.status,
+        newStatus: update.chat_member.new_chat_member.status,
+      });
+      telegramBot.onChatMemberUpdate(update.chat_member);
+    }
+
+    if (update.my_chat_member) {
+      telegramLogger.debug("Processing my_chat_member update", {
+        user: update.my_chat_member.new_chat_member.user.username,
+        oldStatus: update.my_chat_member.old_chat_member.status,
+        newStatus: update.my_chat_member.new_chat_member.status,
+      });
+      telegramBot.onChatMemberUpdate(update.my_chat_member);
+    }
+
+    res.sendStatus(200);
+  } catch (error) {
+    telegramLogger.error("Error processing webhook", {
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      update,
+    });
+    res.sendStatus(500);
+  }
 });
 
 app.post("/webhook", (req, res) => {
