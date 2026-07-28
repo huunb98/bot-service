@@ -20,8 +20,12 @@ app.get("/", (req, res) => {
 const telegramBot = new TelegramBotService().getBotService();
 
 app.post("/hook/telegram", (req, res) => {
-  const message: TelegramBot.Message = req.body.message;
-  if (message) telegramBot.onNewUpdate(message);
+  const update: TelegramBot.Update = req.body;
+  console.log("onNewUpdate", update);
+
+  if (update.message) telegramBot.onNewUpdate(update.message);
+  if (update.chat_member) telegramBot.onChatMemberUpdate(update.chat_member);
+  if (update.my_chat_member) telegramBot.onChatMemberUpdate(update.my_chat_member);
   res.sendStatus(200);
 });
 

@@ -18,9 +18,7 @@ export class TelegramBotService {
    */
   async init() {
     const data = await this.bot.getWebHookInfo();
-
     if (!data.url) await this.setWebhook();
-
     if (data.url && data.url !== this.webHook) {
       await this.bot.deleteWebHook();
       await this.setWebhook();
@@ -28,7 +26,7 @@ export class TelegramBotService {
   }
 
   async setWebhook() {
-    await this.bot.setWebHook(this.webHook, { allowed_updates: ["chat_member", "message", "edited_channel_post", "callback_query"] });
+    await this.bot.setWebHook(this.webHook, { allowed_updates: ["chat_member", "my_chat_member", "message", "edited_channel_post", "callback_query"] });
   }
 
   getBotService(): TelegramBotService {
@@ -59,7 +57,6 @@ export class TelegramBotService {
      * Members added to group (includes bot being added)
      */
 
-    console.log("onNewUpdate", message);
     if (message.new_chat_members?.length) {
       for (const member of message.new_chat_members) {
         if (member.id === botId) {
@@ -131,6 +128,31 @@ export class TelegramBotService {
     }
   }
 
+  onChatMemberUpdate(update: TelegramBot.ChatMemberUpdated) {
+    const botId = Number(process.env.TELEGRAM_BOT_ID);
+    const { chat, new_chat_member, old_chat_member } = update;
+
+    console.log("[onChatMemberUpdate]", chat.title, new_chat_member.user.username, old_chat_member.status, "->", new_chat_member.status);
+
+    const wasNotMember = ["left", "kicked", "restricted"].includes(old_chat_member.status);
+    const isNowMember = ["member", "administrator", "creator"].includes(new_chat_member.status);
+    const isNowLeft = ["left", "kicked"].includes(new_chat_member.status);
+
+    if (new_chat_member.user.id === botId) {
+      // Bot itself joined/left
+      if (isNowMember) {
+        console.log(`[onChatMemberUpdate] Bot added to group [${chat.id}] ${chat.title}`);
+      } else if (isNowLeft) {
+        console.log(`[onChatMemberUpdate] Bot removed from group [${chat.id}] ${chat.title}`);
+      }
+      return;
+    }
+
+    if (!new_chat_member.user.is_bot && wasNotMember && isNowMember) {
+      console.log(`[onChatMemberUpdate] New member joined [${chat.id}] ${chat.title}: ${new_chat_member.user.first_name}`);
+    }
+  }
+
   sendMsgToGroup(chatId: number, message: string, callback: (error: string, message: TelegramBot.Message) => void) {
     this.sendWithRetry(chatId, message)
       .then((msg) => {
@@ -138,4 +160,40 @@ export class TelegramBotService {
       })
       .catch((error) => callback(error, null));
   }
+
+  async getUpdates(offset?: number): Promise<TelegramBot.Update[]> {
+    const updates = await this.bot.getUpdates({ offset, allowed_updates: ["message", "my_chat_member"] });
+
+    console.log("[getUpdates] Received updates:", updates.length);
+    console.log("[getUpdates] Updates:", JSON.stringify(updates, null, 2));
+
+    const newGroups = updates.filter((u) => {
+      if (u.my_chat_member) {
+        const { new_chat_member, chat } = u.my_chat_member;
+        const isGroup = chat.type === "group" || chat.type === "supergroup";
+        const botAdded = new_chat_member.status === "member" || new_chat_member.status === "administrator";
+        return isGroup && botAdded;
+      }
+      return false;
+    });
+
+    if (newGroups.length) {
+      console.log(`[getUpdates] Found ${newGroups.length} new group(s):`);
+      for (const u of newGroups) {
+        const chat = u.my_chat_member.chat;
+        console.log(`  - [${chat.id}] ${chat.title} (${chat.type})`);
+      }
+    } else {
+      console.log("[getUpdates] No new groups found.");
+    }
+
+    return updates;
+  }
 }
+
+import * as dotenv from "dotenv";
+dotenv.config();
+
+new TelegramBotService().getUpdates().catch((error) => {
+  console.error("[getUpdates] Error:", error);
+});
